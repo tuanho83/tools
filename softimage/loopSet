@@ -1,0 +1,10 @@
+#Split
+
+start =0
+end =100
+step = 25
+
+for i in range(start,end,step):
+	x = i + step-1
+	x = end if (x > end) else x
+	print 'start frame: %s  end frame: %s' % (i,x)
