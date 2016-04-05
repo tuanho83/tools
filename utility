@@ -1,0 +1,5 @@
+﻿var myDefault = new Folder('c:/temp');
+//~ var myFiles = myDefault.openDlg(prompt string, filter string+pattern, multi-selection boolean);
+//~ var myFiles = myDefault.openFileDlg('', '*.aep', false);
+var myFiles = myDefault.open();
+alert(myFiles.fsName)
