@@ -1,3 +1,5 @@
+# stackoverflow example
+# dnd
 import sys
 from PyQt4 import QtCore, QtGui
 from functools import partial
