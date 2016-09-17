@@ -1,0 +1,41 @@
+import pfpy
+import os
+import re
+import wt_cmm
+
+nodeTree = []
+def pfMacroName():
+	return 'printXML'
+
+def pfMacroNumSelectedNodes():   # Optional function - specifies the number of nodes which must be selected in
+	return 1 
+
+def main(tree):
+	print '<<====================================================>>'
+	print '<<====================================================>>'
+	name = tree.getProject().getName()
+	projectFullPath = tree.getProject().getFilename()
+	print projectFullPath
+
+	selNode = tree.getSelectedNode()
+	selName = selNode.getName()
+	wt_cmm.recurseUp(selNode, nodeTree)
+	file = open("R:\\newfile.txt", "w")
+	# file.write(projectFullPath)
+
+	revTree = nodeTree.reverse()
+	for i in nodeTree:
+		name = tree.getNode(i).getName()
+		kind = tree.getNode(i).getType()
+		print '%s is a %s Node' % (name,kind)
+		# file.write('%s is a %s Node.\n' % (name,kind))
+		file.write(tree.getNode(i).getXML())
+	# xml = selNode.getXML()
+	print '<<====================================================>>'
+	# platePath = 'R:\carTest1\images\dino10.bg.r1.tv.1064.jpg'
+	# plate = wtClips(tree, platePath)
+
+
+	file.close()
+
+
