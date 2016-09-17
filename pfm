@@ -1,0 +1,132 @@
+# Wt PFmatchit Pipeline Module
+
+# Expose new commands for Command line usage:
+# 	-To be able to clear all projects in the Project Panel. The gui button "Unlink" does this within the application.
+# But only one project can be linked at a time.
+
+# Macros
+# Project API:
+	
+#Note: Currently there are no other methods available other than get project name and project fullpath.
+# 1.It would be nice to be able to create a copy of project based on selected nodes.
+# Group backdrop Class?
+# To create group on selected nodes and set color/name?
+
+import pfpy
+import os
+import re
+
+#path,exportFormat,lens
+def export(tree, selNode,path):
+	##=====================================================================##
+	# 
+	# An error will be logged when trying to export a lens when solver
+	# has no distortion model.
+	exportDLG = tree.addNode('Export')
+
+	#
+	version = nextVersion(tree,'Export')
+	nodeName = "Export_%s" % version
+	exportDLG.setName(nodeName)
+	tree.addLink(selNode, exportDLG )
+	filename = 'testExport'+'_'+ nodeName
+	lensname = 'testLens'+'_'+ nodeName
+	exportPath = os.path.normpath(os.path.join(path,'%s'% filename) )
+	lensPath =os.path.normpath(os.path.join(path,'%s.pfb'% lensname)) 
+	exportDLG.setCurrentFormat(6)
+	exportDLG.setFilename(exportPath)
+	exportDLG.setLensFilename(lensPath)
+
+
+	##=====================================================================##
+	## For the selected export node, traverse up the tree and name nodes to match
+	## export node versioning =============================================##
+
+	nodeTree = []
+	recurseUp(selNode, nodeTree)
+	revTree = nodeTree.reverse()
+	for i in nodeTree:
+		name = tree.getNode(i).getName()
+		nameX = re.sub(" \d+", "", name).strip()
+		cleanName = re.sub('_v\d{3}','',nameX)
+		
+		kind = tree.getNode(i).getType()
+		if kind =='Clip Input':
+			clipName = tree.getNode(i).getName()
+			cleanClipName = re.sub(" \d+", "", clipName).strip()
+			tree.getNode(i).setName(cleanClipName)
+			fPath =  tree.getNode(i).getFilename()
+		if kind !='Clip Input':
+			tree.getNode(i).setName('%s_%s'% (cleanName.strip(),version))
+
+		print '%s is a %s Node' % (cleanName,kind)
+
+	##=====================================================================##
+	#There should be an simplified Gui to choose what to export
+	# exportDLG.exportLens()
+	exportDLG.export()
+
+def cinema(tree):
+	currFrame = tree.getCinema().getCurrentFrame()
+	fF = tree.getCinema().getStartFrame()
+	lF = tree.getCinema().getEndFrame()
+	print 'Clip I/O :: %s - %s ::    Current frame is: %s' % (fF,lF,currFrame)
+
+def fetchXML(tree):
+	print 'XML nodes in graph:::::::::::START'
+	for i in range(tree.getNumNodes()):
+		node= tree.getNode(i)
+		# print 'node name: %s :::::node type: %s ' % (node.getName(), node.getType())
+		print node.getXML()
+	print 'XML nodes in graph:::::::::::END'
+	
+def findNode(tree):
+	print tree.getNode(0).getID()
+	print tree.getNode(0).getXML()
+
+def nextVersion(tree,filterType):
+	listVersion = []
+	maxVersion = ''
+	i=-1
+	for item in range(tree.getNumNodes()):
+		i+=1
+		node = tree.getNode(i)
+		if node.getType() == filterType:
+			nodeName =  node.getName(i)
+			version = re.compile('\d{3}').search(nodeName)
+			if version:	
+				listVersion.append( version.group(0))
+	if listVersion:
+		m = sorted(listVersion)
+		currVersion = int(max(m))+1
+		maxVersion = 'v%03d' % currVersion
+	else:
+		maxVersion = 'v001'
+	return maxVersion
+
+def recurseUp(node,process):
+	#legacy 'process' bad name.....to be changed
+	process.append(node.getID())
+	# loop over every input link recursing up through tree
+	for i in range(node.getNumInputs()):
+			for j in range(node.getNumInputLinks(i)):
+				recurseUp(node.getInputLink(i, j).getFromNode(), process)
+
+def getConnections(node):
+	# getting the in and out link of selected node.
+	try:
+		inNode = selNode.getInputLink().getFromNode().getName()
+	except:
+		inNode = None
+
+	try:
+		outNode =  selNode.getOutputLink().getToNode().getName()
+	except:
+		outNode = None
+	print 'currNode is:  %s  input is from: %s     output is to: %s ' % (selName,inNode,outNode)
+
+def wtClips(tree,filepath):
+	plateNode = tree.addNode('Clip Input')
+	plateNode.setFilename(filepath)
+	#plateNode.setCameraPreset(int) Figure out presets
+	#plateNode.setFrameRate()
