@@ -1,0 +1,25 @@
+import pfpy
+import os
+import re
+import wt_cmm 
+
+def pfMacroName():
+	return 'WT_PUBLISH'
+
+def pfMacroNumSelectedNodes():   # Optional function - specifies the number of nodes which must be selected in
+	return 1 
+
+def main(tree):
+	print 'Current Project: %s' % tree.getProject().getName()
+	selNode = tree.getSelectedNode()
+	exportPath = "c:/temp/test_export/"
+	# You do not want to have a clip or node export node selected when executing
+	# export function.
+	badFilter = ['Export','Clip Input','User Track', 'Auto Track']
+	if selNode.getType() =='Export' or selNode.getType() =='Clip Input' or selNode.getType() =='User Track' or selNode.getType() =='Auto Track':
+		print 'Why are you tryin go export a "%s" node?' % selNode.getType()
+		print 'Wrong type!!!'
+	else:
+		exportNode = wt_cmm.export(tree,selNode,exportPath)
+	# cinema(tree)
+	# print 'Current Project: %s' % tree.getProject().getFilename()
