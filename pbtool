@@ -1,0 +1,71 @@
+from sipyutils import si		# win32com.client.Dispatch('XSI.Application')
+from sipyutils import siut		# win32com.client.Dispatch('XSI.Utils')
+from sipyutils import siui		# win32com.client.Dispatch('XSI.UIToolkit')
+from sipyutils import simath	# win32com.client.Dispatch('XSI.Math')
+from sipyutils import log		# LogMessage
+from sipyutils import disp		# win32com.client.Dispatch
+from sipyutils import C			# win32com.client.constants
+si=si()
+
+
+
+
+#currFrame = ActiveProject.Properties.Item("Play Control").Parameters.Item("Current").Value
+oViewportCapture = si.Dictionary.GetObject("ViewportCapture")
+#oViewportCapture.type
+codecStr = si.GetValue("ViewportCapture.DSCodec")
+#print ("%s" % codecStr)
+
+
+#for item in oViewportCapture.NestedObjects:
+	#print("{0} : {1}".format(item.Name, item.Value))
+# File Name : R:\tonka.jpg
+# Padding : (fn).####(ext)
+# Width : 1920
+# Height : 270
+# Scale Factor : 1
+# User Pixel Ratio : False
+# Pixel Ratio : 1.0
+# Frame Rate : 30.0
+# Write Alpha : True
+# Record Audio Track : False
+# Start Frame : 1001
+# End Frame : 1050
+# Return to Current Frame When Done : True
+# Launch Flipbook : True
+# Use Native Movie Player : True
+# Movie : False
+# OpenGL Anti-Aliasing : 1
+# Remember Last Sequence : False
+# Codec : None
+# DSCodec : None
+startFrame = disp(oViewportCapture.NestedObjects("Start Frame"))
+startFrame.Value= 1001
+endFrame = disp(oViewportCapture.NestedObjects("End Frame"))
+endFrame.Value= 1050
+path = disp(oViewportCapture.NestedObjects("File Name"))
+path.Value =  "R:\\tonka.jpg";
+padding = disp(oViewportCapture.NestedObjects("Padding"))
+padding.Value = "(fn).####(ext)"
+scaleWidth = disp(oViewportCapture.NestedObjects("Width"))
+scaleWidth.Value = 2048
+flip = disp(oViewportCapture.NestedObjects("Launch Flipbook"))
+flip.Value = False
+
+#fileCodec = disp(oViewportCapture.NestedObjects("Codec"))
+#fileCodec.Value="JPEG"
+
+oViewportCapture = Application.CaptureViewport(2, False)
+
+tango = Application.WtPublishVersionSnapshotCurrentScene("")
+print tango
+
+
+import os
+artistDirProj = Application.ActiveProject3.Path
+playblastVer = "v001"
+playblastDir = os.path.join(artistDirProj,"Render_Pictures",playblastVer)
+
+
+print playblastDir 
+
